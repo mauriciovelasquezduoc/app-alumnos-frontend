@@ -27,7 +27,8 @@ export default defineConfig({
         'src/setupTests.js',
         'postcss.config.js',
         'tailwind.config.js',
-        '.github/**'
+        '.github/**',
+        'vite.config.js'
       ],
       thresholds: {
         lines: 100,
