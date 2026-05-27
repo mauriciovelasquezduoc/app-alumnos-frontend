@@ -5,6 +5,13 @@ metadata:
   namespace: app-alumnos
 spec:
   replicas: 2
+  progressDeadlineSeconds: 600
+  minReadySeconds: 30
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
   selector:
     matchLabels:
       app: app-alumnos-frontend
@@ -15,11 +22,11 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: 919889862541.dkr.ecr.us-east-1.amazonaws.com/app-alumnos-frontend:eks-v1 # Colocar uri de tu imagen en ECR
+          image: 919889862541.dkr.ecr.us-east-1.amazonaws.com/app-alumnos-frontend:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
 
-          # Se agrega Resource para que Metrics Server calcule el % de CPU y Memoria para escalar 
           resources:
             requests:
               cpu: "50m"
@@ -28,18 +35,20 @@ spec:
               cpu: "300m"
               memory: "256Mi"
 
-          # HEALTH CHECKS
           readinessProbe:
             httpGet:
-              path: /
+              path: /health
               port: 80
-            initialDelaySeconds: 3
-            periodSeconds: 5
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 3
+            timeoutSeconds: 5
 
           livenessProbe:
             httpGet:
-              path: /
+              path: /health
               port: 80
-            initialDelaySeconds: 10
-            periodSeconds: 10
-
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            failureThreshold: 3
+            timeoutSeconds: 5
